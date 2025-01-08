@@ -14,22 +14,22 @@ const envSchema = z.object({
 });
 
 // Validate the environment variables against the schema
-const env = envSchema.safeParse(process.env);
+const {success, error, data} = envSchema.safeParse(process.env);
 
-if (!env.success) {
-  console.error("Invalid environment variables:", env.error.format());
+if (!success) {
+  console.error("Invalid environment variables:", error.format());
   process.exit(1); // Exit the process if validation fails
 }
 
 // Load validated environment variables into your configuration
 export const config = {
   bot: {
-    token: env.data.BOT_TOKEN,
-    username: env.data.BOT_USERNAME,
-    mode: env.data.BOT_MODE, // Optional if BOT_MODE is not strictly required
+    token: data.BOT_TOKEN,
+    username: data.BOT_USERNAME,
+    mode: data.BOT_MODE, // Optional if BOT_MODE is not strictly required
   },
   asana: {
-    token: env.data.ASANA_TOKEN,
-    project: env.data.ASANA_PROJECT,
+    token: data.ASANA_TOKEN,
+    project: data.ASANA_PROJECT,
   },
 };
