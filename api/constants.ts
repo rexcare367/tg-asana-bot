@@ -13,6 +13,9 @@ const envSchema = z.object({
   ASANA_PROJECT: z.string().nonempty("ASANA_PROJECT_PID is required"),
 });
 
+// Define a type based on the schema
+type EnvConfig = z.infer<typeof envSchema>;
+
 // Validate the environment variables against the schema
 const {success, error, data} = envSchema.safeParse(process.env);
 
@@ -22,7 +25,7 @@ if (!success) {
 }
 
 // Load validated environment variables into your configuration
-export const config = {
+export const config: any = {
   bot: {
     token: data.BOT_TOKEN,
     username: data.BOT_USERNAME,
