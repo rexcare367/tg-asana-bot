@@ -1,7 +1,7 @@
 {
-    "name": "dogebot",
+    "name": "tg-asana-bot",
     "version": "0.1.0",
-    "description": "DogeBot",
+    "description": "automate to create a task on asana via telegram bot",
     "scripts": {
         "lint": "eslint .",
         "format": "eslint . --fix",
@@ -9,8 +9,7 @@
         "build": "tsc --noEmit false",
         "dev": "tsc-watch --onSuccess \"tsx ./api/bot.ts\"",
         "start": "tsx ./api/bot.ts",
-        "start:force": "tsx ./api/bot.ts",
-        "prepare": "npx husky install"
+        "start:force": "tsx ./api/bot.ts"
     },
     "devDependencies": {
         "@types/asana": "^0.18.16",

@@ -1,10 +1,17 @@
 import { Bot, webhookCallback } from "grammy";
-import { config } from "./constants";
+import * as dotenv from "dotenv";
 import { createTask } from "./util/asana";
 
-if (!config.bot.token) throw new Error("BOT_TOKEN is unset");
+dotenv.config();
 
-let bot: any = new Bot(config.bot.token);
+const token = process.env.BOT_TOKEN || ""
+const username = process.env.BOT_USERNAME
+const mode = process.env.BOT_MODE
+const project = process.env.ASANA_PROJECT
+
+if (!token) throw new Error("BOT_TOKEN is unset");
+
+let bot: any = new Bot(token);
 
 bot.command("start", (ctx: any) => ctx.reply("Welcome! Up and running."));
 
@@ -12,8 +19,8 @@ bot.command("start", (ctx: any) => ctx.reply("Welcome! Up and running."));
 bot.on("message", async (ctx: any) => {
     const messageText = ctx.message.text || "";
 
-    if (messageText.includes(`@${config.bot.username}`)) {
-        const command = messageText.split(`@${config.bot.username}`).pop().trim();
+    if (messageText.includes(`@${username}`)) {
+        const command = messageText.split(`@${username}`).pop().trim();
         if (command) {
             const loading = await ctx.reply("processing...");
             let body = {
@@ -23,7 +30,7 @@ bot.on("message", async (ctx: any) => {
                     approval_status: "pending",
                     assignee_status: "upcoming",
                     // "workspace": WORDSPACE_PID,
-                    projects: [config.asana.project],
+                    projects: [project],
                 },
             };
             const task = await createTask(body);
@@ -49,7 +56,7 @@ bot.on("message", async (ctx: any) => {
     }
 });
 
-if (config.bot.mode === "polling")
+if (mode === "polling")
     bot.start({
         onStart: ({ username }: { username: string }) =>
             console.log({
@@ -57,6 +64,6 @@ if (config.bot.mode === "polling")
                 username,
             }),
     });
-else if (config.bot.mode === "webhook") bot = webhookCallback(bot, "https");
+else if (mode === "webhook") bot = webhookCallback(bot, "https");
 
 export default bot;

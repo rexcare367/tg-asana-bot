@@ -1,9 +1,13 @@
 const Asana = require("asana");
-import { config } from "../constants";
+import * as dotenv from "dotenv";
+
+dotenv.config();
+
+const asana_token = process.env.ASANA_TOKEN || ""
 
 let client = Asana.ApiClient.instance;
 let token = client.authentications["token"];
-token.accessToken = config.asana.token;
+token.accessToken = asana_token;
 
 let tasksApiInstance = new (Asana as any).TasksApi();
 let workspacesApiInstance = new (Asana as any).WorkspacesApi();
