@@ -4,10 +4,10 @@ import { createTask } from "./util/asana";
 
 dotenv.config();
 
-const token = process.env.BOT_TOKEN || ""
-const username = process.env.BOT_USERNAME
-const mode = process.env.BOT_MODE
-const project = process.env.ASANA_PROJECT
+const token = process.env.BOT_TOKEN || "";
+const username = process.env.BOT_USERNAME;
+const mode = process.env.BOT_MODE;
+const project = process.env.ASANA_PROJECT;
 
 if (!token) throw new Error("BOT_TOKEN is unset");
 
@@ -18,6 +18,7 @@ bot.command("start", (ctx: any) => ctx.reply("Welcome! Up and running."));
 // Handle other messages.
 bot.on("message", async (ctx: any) => {
     const messageText = ctx.message.text || "";
+    console.log("message ==> ", messageText);
 
     if (messageText.includes(`@${username}`)) {
         const command = messageText.split(`@${username}`).pop().trim();
