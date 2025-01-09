@@ -69,6 +69,10 @@ bot.command("config", async (ctx: any) => {
     await ctx.reply(replyText, { reply_markup: replyMarkup, parse_mode: "Markdown" });
 });
 
+bot.callbackQuery("click-payload", async (ctx) => {
+    await ctx.reply("click-payload");
+})
+
 bot.callbackQuery("changeProject", async (ctx) => {
     const projects = await getProjects();
 
