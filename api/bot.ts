@@ -69,27 +69,29 @@ bot.command("config", async (ctx: any) => {
     await ctx.reply(replyText, { reply_markup: replyMarkup, parse_mode: "Markdown" });
 });
 
-bot.callbackQuery("click-payload", async (ctx) => {
-    await ctx.reply("click-payload");
-})
+// bot.callbackQuery("click-payload", async (ctx) => {
+//     await ctx.reply("click-payload");
+// })
 
-bot.callbackQuery("changeProject", async (ctx) => {
-    const projects = await getProjects();
+// bot.callbackQuery("changeProject", async (ctx) => {
+//     const projects = await getProjects();
 
-    const replyText =
-        `click one project to create task on.\n`
+//     const replyText =
+//         `click one project to create task on.\n`
     
-    const replyMarkup = {
-        inline_keyboard: projects.map((project:any) => [
-            { text: project.name, callback_data: `changeProject:${project.gid}` }
-        ]),
-    };
+//     const replyMarkup = {
+//         inline_keyboard: projects.map((project:any) => [
+//             { text: project.name, callback_data: `changeProject:${project.gid}` }
+//         ]),
+//     };
 
-    await ctx.reply(replyText, { reply_markup: replyMarkup, parse_mode: "Markdown" });
-});
+//     await ctx.reply(replyText, { reply_markup: replyMarkup, parse_mode: "Markdown" });
+// });
 
 bot.on("callback_query:data", async (ctx) => {
     const callbackQuery = ctx.callbackQuery.data;
+    console.log('===callbackQuery', callbackQuery);
+    await ctx.reply('=====replyText')
     if(callbackQuery.startsWith("changeProject"))
     {    
         const project = await getProjectById(callbackQuery.split(':')[1]);
