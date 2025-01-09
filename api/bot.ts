@@ -51,7 +51,7 @@ bot.command("start", async (ctx: any) => {
                 { text: "--- Project ---", callback_data: "create_task_title" }, 
             ], 
             [
-                { text: `✎ ${name}`, callback_data: "changeProject" }
+                { text: `project`, callback_data: "changeProject" }
             ]
         ],
     };
