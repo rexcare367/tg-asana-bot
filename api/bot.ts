@@ -1,4 +1,4 @@
-import { Bot, webhookCallback, Context, session, SessionFlavor } from "grammy";
+import { Bot, webhookCallback, Context, session, SessionFlavor, InlineKeyboard } from "grammy";
 import * as dotenv from "dotenv";
 import { createTask, getProjectById, getProjects, getSections } from "./util/asana";
 import { getSetting, updateSettings,  } from "./util/supabase";
@@ -44,7 +44,10 @@ const nameArray = [
     },
 ];
 
-bot.command("start", (ctx: any) => ctx.reply("Welcome! Up and running."));
+bot.command("start", async (ctx: any) => {
+    const inlineKeyboard = new InlineKeyboard().text("click", "click-payload");
+    await ctx.reply("Curious? Click me!", { reply_markup: inlineKeyboard });
+});
 
 bot.command("config", async (ctx: any) => {
     const setting = await getSetting();
@@ -190,7 +193,7 @@ bot.on("message", async (ctx: any) => {
                 `📢 Successfully created a task\n\n` +
                 `**${taskName}**\n\n` +
                 `🏠 Workspace: **${workspaceName}**\n` +
-                `🧰 Project: **${projectName}**\n\n` +
+                `🧰 Project: **${projectName}**\n` +
                 `🔖 Section: **${sectionName}**\n\n` +
                 `${taskUrl}`;
             const replyMarkup = {
