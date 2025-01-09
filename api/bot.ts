@@ -19,30 +19,30 @@ interface SessionData {
   // Flavor the context type to include sessions.
 type MyContext = Context & SessionFlavor<SessionData>;
 
-// let botcontext:any; 
+let botcontext:any; 
 const bot = new Bot<MyContext>(token);
 
-// // Install session middleware, and define the initial session value.
-// async function initial(): Promise<SessionData> {
-//     return { workspace: '', project: ''};
-// }
+// Install session middleware, and define the initial session value.
+async function initial(): Promise<SessionData> {
+    return { workspace: '', project: ''};
+}
   
-// bot.use(session({ initial: initial as any }));
+bot.use(session({ initial: initial as any }));
 
-// const nameArray = [
-//     {
-//         gid: "1209093882208970",
-//         name: "Brian",
-//     },
-//     {
-//         gid: "291735074243751",
-//         name: "Mike",
-//     },
-//     {
-//         gid: "1180519359737765",
-//         name: "Mark",
-//     },
-// ];
+const nameArray = [
+    {
+        gid: "1209093882208970",
+        name: "Brian",
+    },
+    {
+        gid: "291735074243751",
+        name: "Mike",
+    },
+    {
+        gid: "1180519359737765",
+        name: "Mark",
+    },
+];
 
 bot.command("start", async (ctx: any) => {
     const replyMarkup = {
@@ -217,16 +217,16 @@ bot.callbackQuery("changeProject", async (ctx) => {
 //     }
 // });
 
-// if (mode === "polling")
-//     {bot.start({
-//         onStart: ({ username }: { username: string }) =>
-//             console.log({
-//                 msg: "bot running...",
-//                 username,
-//             }),
-//     });
-//     botcontext = bot;
-// }
-// else if (mode === "webhook") botcontext = webhookCallback(bot, "https");
+if (mode === "polling")
+    {bot.start({
+        onStart: ({ username }: { username: string }) =>
+            console.log({
+                msg: "bot running...",
+                username,
+            }),
+    });
+    botcontext = bot;
+}
+else if (mode === "webhook") botcontext = webhookCallback(bot, "https");
 
-export default webhookCallback(bot, "https");
+export default botcontext;
