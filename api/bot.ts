@@ -39,7 +39,7 @@ bot.on("message", async (ctx: any) => {
 
         if (parts.length > 1) {
             const secondWord = parts[1].trim();
-            const user = nameArray.find((user) => user.name === secondWord);
+            const user = nameArray.find((user) => user.name.toLowerCase() === secondWord.toLowerCase());
 
             if (user) {
                 // Join the remaining parts of the message
