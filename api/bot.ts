@@ -223,6 +223,4 @@ if (mode === "polling")
     });
     botcontext = bot;
 }
-else if (mode === "webhook") botcontext = webhookCallback(bot, "https");
-
-export default botcontext;
+else if (mode === "webhook") webhookCallback(bot, "https");
