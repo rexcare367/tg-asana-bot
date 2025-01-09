@@ -48,7 +48,7 @@ const nameArray = [
 bot.command("start", async (ctx: any) => {
     
     const args = ctx.match.split('_')
-    console.log('===== args', args);
+    
     if (args[0] === 'func')
         if (args[1] === 'changeproject')
         {
@@ -64,7 +64,7 @@ bot.command("start", async (ctx: any) => {
             await ctx.reply(replyText, { parse_mode: "Markdown" });
         }
         else {}
-    else ctx.reply("Welcome! Up and running.");
+    else ctx.reply("Welcome! Up and running.\n\n Input /config to check your bot setting");
 });
 
 bot.command("config", async (ctx: any) => {
@@ -78,7 +78,8 @@ bot.command("config", async (ctx: any) => {
 });
 
 bot.command("changeProject", async (ctx) => {
-    const projects = await getProjects();
+            const loading = await ctx.reply("processing...");
+            const projects = await getProjects();
 
     let replyText =
         `click one project to create task on.\n\n`
@@ -87,58 +88,10 @@ bot.command("changeProject", async (ctx) => {
         return replyText +=
             `✅ [${project?.name}](https://t.me/${username}?start=func_changeproject_${project.gid})\n\n`;
     });
-    await ctx.reply(replyText, { parse_mode: "Markdown" });
+            await ctx.api.deleteMessage(loading.chat.id, loading.message_id);
+            await ctx.reply(replyText, { parse_mode: "Markdown" });
 
-})
-
-bot.callbackQuery("changeProject", async (ctx) => {
-    const projects = await getProjects();
-
-    const replyText =
-        `click one project to create task on.\n`
-    
-    const replyMarkup = {
-        inline_keyboard: projects.map((project:any) => [
-            { text: project.name, callback_data: `changeProject:${project.gid}` }
-        ]),
-    };
-
-    await ctx.reply(replyText, { reply_markup: replyMarkup, parse_mode: "Markdown" });
 });
-
-bot.on("callback_query:data", async (ctx) => {
-    const callbackQuery = ctx.callbackQuery.data;
-    if(callbackQuery.startsWith("changeProject"))
-    {    
-        const project = await getProjectById(callbackQuery.split(':')[1]);
-        await updateSettings(project.workspace.gid, project.gid)
-
-        const setting = await getSetting();
-        const {name} = await getProjectById(setting.project);
-        const replyText =
-            `You can check your setting.\n`
-        
-        const replyMarkup = {
-            inline_keyboard: [
-                [
-                    { text: "--- Project ---", callback_data: "create_task_title" }, 
-                ], 
-                [
-                    { text: `✎ ${name}`, callback_data: "changeProject" }
-                ]
-            ],
-        };
-        
-        await ctx.reply(replyText, { reply_markup: replyMarkup, parse_mode: "Markdown" });
-
-    }
-    else {
-        console.log('callbackQuery', callbackQuery)
-    }
-    await ctx.answerCallbackQuery({
-        text: "You were curious, indeed!",
-      });
-})
 
 // Handle other messages.
 bot.on("message", async (ctx: any) => {
