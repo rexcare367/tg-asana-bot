@@ -75,7 +75,8 @@ bot.on("message", async (ctx: any) => {
                 await ctx.api.deleteMessage(loading.chat.id, loading.message_id);
                 await ctx.reply(replyText, { reply_markup: replyMarkup, parse_mode: "Markdown" });
             } else {
-                const replyText = `📢 Can't find specific name` + (await ctx.api.deleteMessage(loading.chat.id, loading.message_id));
+                const replyText = `📢 Can't find specific name`;
+                await ctx.api.deleteMessage(loading.chat.id, loading.message_id);
                 await ctx.reply(replyText, { parse_mode: "Markdown" });
             }
         }
