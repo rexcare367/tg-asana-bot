@@ -38,6 +38,7 @@ bot.on("message", async (ctx: any) => {
         const parts = messageText.split(" ");
 
         if (parts.length > 1) {
+            const loading = await ctx.reply("processing...");
             const secondWord = parts[1].trim();
             const user = nameArray.find((user) => user.name.toLowerCase() === secondWord.toLowerCase());
 
@@ -45,7 +46,6 @@ bot.on("message", async (ctx: any) => {
                 // Join the remaining parts of the message
                 const command = parts.slice(2).join(" ");
 
-                const loading = await ctx.reply("processing...");
                 let body = {
                     data: {
                         name: command,
@@ -74,6 +74,9 @@ bot.on("message", async (ctx: any) => {
                 };
                 await ctx.api.deleteMessage(loading.chat.id, loading.message_id);
                 await ctx.reply(replyText, { reply_markup: replyMarkup, parse_mode: "Markdown" });
+            } else {
+                const replyText = `📢 Can't find specific name` + (await ctx.api.deleteMessage(loading.chat.id, loading.message_id));
+                await ctx.reply(replyText, { parse_mode: "Markdown" });
             }
         }
     }
