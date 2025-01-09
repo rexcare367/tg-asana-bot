@@ -18,6 +18,7 @@
         "typescript": "^5.7.2"
     },
     "dependencies": {
+        "@supabase/supabase-js": "^2.47.12",
         "asana": "^3.0.12",
         "axios": "^1.7.9",
         "dotenv": "^16.4.7",
