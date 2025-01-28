@@ -4,16 +4,18 @@ import { createTask, getSections } from '../util/asana';
 
 const createTaskHanlder = async (ctx: any, messageText: string) => {
   const parts = messageText.split(' ');
-
+  console.log('messageText :>> ', messageText);
   if (parts.length > 1) {
     const loading = await ctx.reply('processing...');
     const secondWord = parts[1].trim();
     const user = nameArray.find((user) => user.name.toLowerCase() === secondWord.toLowerCase());
 
     if (!user) {
+      console.log('nameArray :>> ', nameArray);
       const replyText = `📢 Can't find specific name - ${secondWord}`;
       await ctx.api.deleteMessage(loading.chat.id, loading.message_id);
-      return ctx.reply(replyText, { parse_mode: 'Markdown' });
+      await ctx.reply(replyText, { parse_mode: 'Markdown' });
+      return;
     }
 
     const setting = await getSetting();
@@ -26,7 +28,8 @@ const createTaskHanlder = async (ctx: any, messageText: string) => {
     if (!section) {
       const replyText = `📢 Can't find secction from ${messageText}`;
       await ctx.api.deleteMessage(loading.chat.id, loading.message_id);
-      return ctx.reply(replyText, { parse_mode: 'Markdown' });
+      await ctx.reply(replyText, { parse_mode: 'Markdown' });
+      return;
     }
 
     // Join the remaining parts of the message
@@ -67,6 +70,7 @@ const createTaskHanlder = async (ctx: any, messageText: string) => {
     };
     await ctx.api.deleteMessage(loading.chat.id, loading.message_id);
     await ctx.reply(replyText, { reply_markup: replyMarkup, parse_mode: 'Markdown' });
+    return;
   }
 };
 
