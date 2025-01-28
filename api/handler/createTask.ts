@@ -7,8 +7,11 @@ const createTaskHanlder = async (ctx: any, messageText: string) => {
   console.log('messageText :>> ', messageText);
   if (parts.length > 1) {
     const loading = await ctx.reply('processing...');
+    console.log('loading :>> ', loading);
     const secondWord = parts[1].trim();
+    console.log('secondWord :>> ', secondWord);
     const user = nameArray.find((user) => user.name.toLowerCase() === secondWord.toLowerCase());
+    console.log('user :>> ', user);
 
     if (!user) {
       console.log('nameArray :>> ', nameArray);
