@@ -1,7 +1,7 @@
 import { Bot, webhookCallback, Context, session, SessionFlavor } from "grammy";
 import * as dotenv from "dotenv";
 import { createTask, getProjectById, getProjects, getSections } from "./util/asana";
-import { getSetting, updateSettings,  } from "./util/supabase";
+import { getSetting, updateSettings } from "./util/supabase";
 
 dotenv.config();
 
@@ -17,80 +17,79 @@ interface SessionData {
     project: string;
 }
 
-  // Flavor the context type to include sessions.
+// Flavor the context type to include sessions.
 type MyContext = Context & SessionFlavor<SessionData>;
 
-let botcontext:any; 
+let botcontext: any;
 const bot = new Bot<MyContext>(token);
 
 // Install session middleware, and define the initial session value.
 async function initial(): Promise<SessionData> {
-    return { workspace: '', project: ''};
+    return { workspace: "", project: "" };
 }
-  
+
 bot.use(session({ initial: initial as any }));
 
 const nameArray = [
+    {
+        gid: "1203950051666559",
+        name: "Krishna",
+    },
+    {
+        gid: "1207464937974984",
+        name: "Mai",
+    },
     {
         gid: "1209093882208970",
         name: "Brian",
     },
     {
-        gid: "291735074243751",
-        name: "Mike",
+        gid: "1203840840308115",
+        name: "Brett",
     },
     {
-        gid: "1180519359737765",
-        name: "Mark",
+        gid: "1209243289688083",
+        name: "Tereza",
     },
 ];
 
 bot.command("start", async (ctx: any) => {
-    
-    const args = ctx.match.split('_')
-    
-    if (args[0] === 'func')
-        if (args[1] === 'changeproject')
-        {
+    const args = ctx.match.split("_");
+
+    if (args[0] === "func")
+        if (args[1] === "changeproject") {
             const project = await getProjectById(args[2]);
-            await updateSettings(project.workspace.gid, project.gid)
+            await updateSettings(project.workspace.gid, project.gid);
 
             const setting = await getSetting();
-            const {name} = await getProjectById(setting.project);
-            const replyText =
-                `Your Tasks will be created on \n✅ ${name}.\n\n`+
-                `To change the project, just input /changeProject command`
-            
+            const { name } = await getProjectById(setting.project);
+            const replyText = `Your Tasks will be created on \n✅ ${name}.\n\n` + `To change the project, just input /changeProject command`;
+
             await ctx.reply(replyText, { parse_mode: "Markdown" });
+        } else {
         }
-        else {}
     else ctx.reply("Welcome! Up and running.\n\n Input /config to check your bot setting");
 });
 
 bot.command("config", async (ctx: any) => {
     const setting = await getSetting();
-    const {name} = await getProjectById(setting.project);
-    const replyText =
-        `Your Tasks will be created on \n✅ ${name}.\n\n`+
-        `To change the project, just input /changeProject command`
-    
+    const { name } = await getProjectById(setting.project);
+    const replyText = `Your Tasks will be created on \n✅ ${name}.\n\n` + `To change the project, just input /changeProject command`;
+
     await ctx.reply(replyText, { parse_mode: "Markdown" });
 });
 
-bot.command("changeProject", async (ctx) => {
-            const loading = await ctx.reply("processing...");
-            const projects = await getProjects();
+bot.command("changeProject", async (ctx: any) => {
+    const loading = await ctx.reply("processing...");
+    const projects = await getProjects();
 
-    let replyText =
-        `click one project to create task on.\n\n`
-    
-    projects.map(async (project:any) => {
-        return replyText +=
-            `✅ [${project?.name}](https://t.me/${username}?start=func_changeproject_${project.gid})\n\n`;
+    let replyText = `click one project to create task on.\n\n`;
+
+    projects.map(async (project: any) => {
+        return (replyText += `✅ [${project?.name}](https://t.me/${username}?start=func_changeproject_${project.gid})\n\n`);
     });
-            await ctx.api.deleteMessage(loading.chat.id, loading.message_id);
-            await ctx.reply(replyText, { parse_mode: "Markdown" });
-
+    await ctx.api.deleteMessage(loading.chat.id, loading.message_id);
+    await ctx.reply(replyText, { parse_mode: "Markdown" });
 });
 
 // Handle other messages.
@@ -109,40 +108,23 @@ bot.on("message", async (ctx: any) => {
             if (!user) {
                 const replyText = `📢 Can't find specific name - ${secondWord}`;
                 await ctx.api.deleteMessage(loading.chat.id, loading.message_id);
-                return  ctx.reply(replyText, { parse_mode: "Markdown" });
+                return ctx.reply(replyText, { parse_mode: "Markdown" });
             }
 
             const setting = await getSetting();
-
-            const thirdWord = parts[2].trim();
-
             const sections = await getSections(setting.project);
 
-            // let section = {};
-            // let i = 0;
-            // while(1)
-            // {
-            //     let _sectionName = parts.slice(2, 3 + i).join(" ");
-            //     const _section = sections.map((section:any) => section.name.toLowerCase().startsWith(thirdWord.toLowerCase()));
-            //     if(_section.length === 1)
-            //         {
-            //             section = {..._section}
-            //             break;
-            //         }
-            //     i++;
-            // }
-
-            const section = sections.find((section:any) => section.name.toLowerCase().startsWith(thirdWord.toLowerCase()));
+            const section = sections.find((section: any) => section.name.toLowerCase().startsWith(parts[2].trim().toLowerCase()));
 
             if (!section) {
                 console.log(`Can't find secction from ${messageText}`);
                 const replyText = `📢 Can't find secction from ${messageText}`;
                 await ctx.api.deleteMessage(loading.chat.id, loading.message_id);
-                return  ctx.reply(replyText, { parse_mode: "Markdown" });
+                return ctx.reply(replyText, { parse_mode: "Markdown" });
             }
 
             // Join the remaining parts of the message
-            const command = parts.slice(2+section.name.split(' ').length).join(" ");
+            const command = parts.slice(2 + section.name.split(" ").length).join(" ");
 
             let body = {
                 data: {
@@ -157,7 +139,6 @@ bot.on("message", async (ctx: any) => {
             };
 
             const task = await createTask(body);
-
 
             const taskName = task.name;
             const projectName = task.projects[0].name;
@@ -176,13 +157,12 @@ bot.on("message", async (ctx: any) => {
             };
             await ctx.api.deleteMessage(loading.chat.id, loading.message_id);
             await ctx.reply(replyText, { reply_markup: replyMarkup, parse_mode: "Markdown" });
-            
         }
     }
 });
 
-if (mode === "polling")
-    {bot.start({
+if (mode === "polling") {
+    bot.start({
         onStart: ({ username }: { username: string }) =>
             console.log({
                 msg: "bot running...",
@@ -190,7 +170,6 @@ if (mode === "polling")
             }),
     });
     botcontext = bot;
-}
-else if (mode === "webhook") botcontext = webhookCallback(bot, "https");
+} else if (mode === "webhook") botcontext = webhookCallback(bot, "https");
 
 export default botcontext;
