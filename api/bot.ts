@@ -106,6 +106,7 @@ bot.on("message", async (ctx: any) => {
             const user = nameArray.find((user) => user.name.toLowerCase() === secondWord.toLowerCase());
 
             if (!user) {
+                console.log("message ==> ", nameArray);
                 const replyText = `📢 Can't find specific name - ${secondWord}`;
                 await ctx.api.deleteMessage(loading.chat.id, loading.message_id);
                 return ctx.reply(replyText, { parse_mode: "Markdown" });
