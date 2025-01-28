@@ -1,8 +1,9 @@
 import { Bot, webhookCallback, Context, session, SessionFlavor } from 'grammy';
 import * as dotenv from 'dotenv';
-import { getProjectById, getProjects } from './util/asana';
+import { createTask, getProjectById, getProjects, getSections } from './util/asana';
 import { getSetting, updateSettings } from './util/supabase';
 import createTaskHanlder from './handler/createTask';
+import { nameArray } from './util/constants';
 
 dotenv.config();
 
@@ -74,7 +75,84 @@ bot.on('message', async (ctx: any) => {
   const messageText = ctx.message.text || '';
 
   if (messageText.toLowerCase().startsWith('createtask')) {
-    createTaskHanlder(ctx, messageText);
+    const parts = messageText.split(' ');
+    console.log('messageText :>> ', nameArray, messageText);
+    if (parts.length > 1) {
+      const loading = await ctx.reply('processing...');
+      console.log('loading :>> ', loading);
+      const secondWord = parts[1].trim();
+      console.log('secondWord :>> ', secondWord);
+      const user = nameArray.find((user) => user.name.toLowerCase() === secondWord.toLowerCase());
+      console.log('user :>> ', user);
+
+      if (!user) {
+        console.log('nameArray :>> ', nameArray);
+        const replyText = `📢 Can't find specific name - ${secondWord}`;
+        await ctx.api.deleteMessage(loading.chat.id, loading.message_id);
+        await ctx.reply(replyText, { parse_mode: 'Markdown' });
+        return;
+      }
+
+      console.log('user :>> ', user);
+
+      const setting = await getSetting();
+      const sections = await getSections(setting.project);
+
+      const section = sections.find((section: any) =>
+        section.name.toLowerCase().startsWith(parts[2].trim().toLowerCase()),
+      );
+
+      if (!section) {
+        console.log('sections :>> ', sections);
+        const replyText = `📢 Can't find secction from ${messageText}`;
+        await ctx.api.deleteMessage(loading.chat.id, loading.message_id);
+        await ctx.reply(replyText, { parse_mode: 'Markdown' });
+        return;
+      }
+      console.log('section :>> ', section);
+
+      // Join the remaining parts of the message
+      const command = parts.slice(2 + section.name.split(' ').length).join(' ');
+      console.log('command :>> ', command);
+      const subParts = command.split('//');
+      console.log('subParts :>> ', subParts);
+      const name = subParts[0];
+      const notes = subParts.slice(1).join('//');
+
+      let body = {
+        data: {
+          name: name,
+          notes: notes,
+          assignee: user.gid,
+          resource_subtype: 'default_task',
+          approval_status: 'pending',
+          assignee_status: 'upcoming',
+          assignee_section: section.gid,
+          projects: [setting.project],
+        },
+      };
+
+      const task = await createTask(body);
+
+      const taskName = task.name;
+      const projectName = task.projects[0].name;
+      const sectionName = section.name;
+      const workspaceName = task.workspace.name;
+      const taskUrl = task.permalink_url;
+      const replyText =
+        `📢 Successfully created a task\n\n` +
+        `**${taskName}**\n\n` +
+        `🏠 Workspace: **${workspaceName}**\n` +
+        `🧰 Project: **${projectName}**\n` +
+        `🔖 Section: **${sectionName}**\n\n` +
+        `${taskUrl}`;
+      const replyMarkup = {
+        inline_keyboard: [[{ text: 'View Task', url: taskUrl }]],
+      };
+      await ctx.api.deleteMessage(loading.chat.id, loading.message_id);
+      await ctx.reply(replyText, { reply_markup: replyMarkup, parse_mode: 'Markdown' });
+      return;
+    }
   }
 });
 
