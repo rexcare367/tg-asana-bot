@@ -70,4 +70,4 @@ const createTaskHanlder = async (ctx: any, messageText: string) => {
   }
 };
 
-export default createTask;
+export default createTaskHanlder;
