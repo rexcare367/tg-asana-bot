@@ -18,6 +18,8 @@ const createTaskHanlder = async (ctx: any, messageText: string) => {
       return;
     }
 
+    console.log('user :>> ', user);
+
     const setting = await getSetting();
     const sections = await getSections(setting.project);
 
@@ -26,15 +28,19 @@ const createTaskHanlder = async (ctx: any, messageText: string) => {
     );
 
     if (!section) {
+      console.log('sections :>> ', sections);
       const replyText = `📢 Can't find secction from ${messageText}`;
       await ctx.api.deleteMessage(loading.chat.id, loading.message_id);
       await ctx.reply(replyText, { parse_mode: 'Markdown' });
       return;
     }
+    console.log('section :>> ', section);
 
     // Join the remaining parts of the message
     const command = parts.slice(2 + section.name.split(' ').length).join(' ');
+    console.log('command :>> ', command);
     const subParts = command.split('//');
+    console.log('subParts :>> ', subParts);
     const name = subParts[0];
     const notes = subParts.slice(1).join('//');
 
